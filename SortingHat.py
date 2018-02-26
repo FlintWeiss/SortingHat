@@ -38,6 +38,9 @@ serial = spi(port=0, device=0, gpio=noop())
 device = max7219(serial, cascaded=1, block_orientation=0, rotate=0)
 print("Created LED device")
 
+# global variable to see if I am already in a button pressed state
+buttonPressed = False
+
 # this should be more parameterized and dynamic; currently hardcoded
 # there are 4 houses to be selected into. We want selection to be randomized but we 
 # also want a fairly even distribution along with the appearance of randomization.
@@ -53,31 +56,36 @@ pickList = []
 #==========================================================================================================
 # handles the buttonPush even which will pick a team and display the number on the display
 def buttonPush(channel):
+   global buttonPressed
 
     # try to get rid of the duplicate button press events since bouncetime isn't really working
-#    GPIO.remove_event_detect(BUTTON_PIN)
-    print 'PUSHED!'
+   if buttonPressed:
+      print("Button already pressed, skipping...")
+   else:
+
+      buttonPressed = True
+      print 'PUSHED!'
     
-    # turn off the button light
-    buttonLightOff()
+      # turn off the button light
+      buttonLightOff()
 	
-    # start the "thinking activity"
-    displayOff()
-    time.sleep(0.5)
-    displayOn()
-    time.sleep(0.5)
-    displayOff()
+      # start the "thinking activity"
+      displayOff()
+      time.sleep(0.5)
+      displayOn()
+      time.sleep(0.5)
+      displayOff()
 	
-    # pick a house
-    myPick = pickTeam()
+      # pick a house
+      myPick = pickTeam()
 
-    # print to display
-    flashChar(myPick, 3) # add a little flash
-    printChar(myPick)    # but then let it stay
+      # print to display
+      flashChar(myPick, 3) # add a little flash
+      printChar(myPick)    # but then let it stay
 
-    # signal ready for next press
-    buttonLightOn()
-#    GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, buttonPush, bouncetime=2000)
+      # signal ready for next press
+      buttonLightOn()
+      buttonPressed = False
 
 #==========================================================================================================
 # pickTeam
@@ -162,6 +170,23 @@ time.sleep(0.5)
 
 
 #hang around, waiting for buttn presses
+# change this loop to watch for button presses instead of using the event handler
+#   so that I can remove the event and put it back to try and get rid of the multiple
+#   button pressed.
+
+#while True:
+#        time.sleep(0.25)
+#            if GPIO.event_detected(btn):
+#                GPIO.remove_event_detect(btn)
+#                do_something()
+#                time.sleep(1)
+#                GPIO.add_event_detect(btn, GPIO.RISING, bouncetime=1)
+#        pass
+
+
+
+
+
 while(True):
    time.sleep(0.25) 
 
