@@ -157,7 +157,8 @@ def displayOff():
 #----------------------------------------------------------------------------------------------------------
 # main execution section
 
-GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, buttonPush, bouncetime=2000)
+#GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, buttonPush, bouncetime=2000)
+GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, bouncetime=1000)
 
 scrollMessage("Sorting Hat")
 
@@ -167,28 +168,23 @@ time.sleep(0.5)
 displayOff()
 buttonLightOff()
 time.sleep(0.5)
+buttonLightOn()
 
-
-#hang around, waiting for buttn presses
-# change this loop to watch for button presses instead of using the event handler
-#   so that I can remove the event and put it back to try and get rid of the multiple
-#   button pressed.
-
-#while True:
-#        time.sleep(0.25)
-#            if GPIO.event_detected(btn):
-#                GPIO.remove_event_detect(btn)
-#                do_something()
-#                time.sleep(1)
-#                GPIO.add_event_detect(btn, GPIO.RISING, bouncetime=1)
-#        pass
-
-
-
+# hang around, waiting for buttn presses
+#   we are watching for button presses instead of using the event handler callback
+#   so that we can remove the event and put it back to try and get rid of the multiple
+#   button press events that were firing with the callback function
 
 
 while(True):
    time.sleep(0.25) 
+
+   if GPIO.event_detected(BUTTON_PIN):
+      GPIO.remove_event_detect(BUTTON_PIN)
+      buttonPush(1)
+      GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, bouncetime=1000)
+
+   pass
 
 # Cleanup on exit. Only for development b/c real usage will just power down the pi
 GPIO.cleanup()
